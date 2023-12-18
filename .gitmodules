@@ -1,0 +1,6 @@
+[submodule "DeepMethodBaseline"]
+	path = DeepMethodBaseline
+	url = https://github.com/advimman/lama.git
+[submodule "NonDeepMethodBaseline"]
+	path = NonDeepMethodBaseline
+	url = https://github.com/olvb/pyheal

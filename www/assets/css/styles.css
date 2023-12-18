@@ -1,0 +1,24 @@
+.text-muted {
+  color: var(--bs-primary)!important;
+}
+
+a {
+  color: rgba(var(--bs-primary),var(--bs-link-opacity,1));
+  text-decoration: underline;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #fd800d;
+  --bs-btn-border-color: #fd800d;
+  --bs-btn-focus-shadow-rgb: 253,128,13;
+  --bs-btn-hover-color: var(--bs-btn-color);
+  --bs-btn-hover-bg: rgb(255,226,200);
+  --bs-btn-hover-border-color: #fd800d;
+  --bs-btn-active-color: var(--bs-btn-color);
+  --bs-btn-active-bg: rgb(255,226,200);
+  --bs-btn-active-border-color: #fd800d;
+  --bs-btn-disabled-color: #fd800d;
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: #fd800d;
+}
+
