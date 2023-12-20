@@ -18,6 +18,23 @@
     <link rel="stylesheet" href="assets/css/bs-theme-overrides.css">
     <link rel="stylesheet" href="assets/css/Footer-Clean-icons.css">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /*With the help of GPT4*/
+        /* For Webkit browsers like Chrome, Safari, and newer versions of Edge */
+        input[type="range"].form-range::-webkit-slider-thumb {
+            background-color: #fd800d; /* Replace #yourColor with the color you want */
+        }
+
+        /* For Mozilla Firefox */
+        input[type="range"].form-range::-moz-range-thumb {
+            background-color: #fd800d; /* Replace #yourColor with the color you want */
+        }
+
+        /* For Microsoft Edge */
+        input[type="range"].form-range::-ms-thumb {
+            background-color: #fd800d; /* Replace #yourColor with the color you want */
+        }
+    </style>
 </head>
 
 <body>
@@ -68,10 +85,16 @@
             <canvas id="draw_mask_cvs"></canvas>
         </div>
         <p style="text-align: center;color: var(--bs-primary);font-weight: bold;">Draw on the image of the region you want to be masked.</p>
-        <div class="container d-xl-flex justify-content-xl-center">
+        <div class="container d-flex justify-content-center" style="margin-top: 10px;margin-bottom: 10px;">
+            <label class="col" for="brush_size_range" style="text-align: right;color: var(--bs-primary);width: 40px;">Brush Size</label>
+            <input type="range" class="form-range col" min="0" max="100" step="1" value="24" id="brush_size_range" style="width: 30%;margin-left: 10px;margin-right: 10px;">
+            <bold class="col" style="text-align: left;color: var(--bs-primary); width: 40px;" id="brush_size_displayer">24px</bold>
+        </div>
+        <div class="container d-flex justify-content-center">
             <button class="btn btn-primary" id="draw_back_btn" type="button" style="color: rgb(255,255,255);font-weight: bold;margin-left: 10px;margin-right: 10px;">Back</button>
             <button class="btn btn-outline-primary" id="draw_reset_btn" type="button" style="color: var(--bs-btn-color);font-weight: bold;margin-left: 10px;margin-right: 10px;">Reset</button>
-            <button class="btn btn-primary" id="draw_next_btn" type="button" style="color: rgb(255,255,255);font-weight: bold;margin-left: 10px;margin-right: 10px;">Next</button></div>
+            <button class="btn btn-primary" id="draw_next_btn" type="button" style="color: rgb(255,255,255);font-weight: bold;margin-left: 10px;margin-right: 10px;">Next</button>
+        </div>
     </div>
 
     <!--The container that displaying the inpainting results-->
@@ -94,16 +117,22 @@
         </div>
         <div class="container">
             <div class="row">
-                <div class="col-md-6 col" style="text-align: center;">
-                    <p style="color: var(--bs-primary);font-weight: bold;font-size: 20px;margin-top: 16px;margin-bottom: 10px;">Non-deep Learning Inpainted</p>
+                <div class="col" style="text-align: center;">
+                    <p style="color: var(--bs-primary);font-weight: bold;font-size: 20px;margin-top: 16px;margin-bottom: 10px;">Non-deep Learning (Telea pyheal)</p>
                     <button id="display_btn_3" type="button" style="padding: 0px;border-style: none;">
                         <img id="display_img_3" class="img-fluid" >
                     </button>
                 </div>
                 <div class="col" style="text-align: center;">
-                    <p style="color: var(--bs-primary);font-weight: bold;font-size: 20px;margin-top: 16px;margin-bottom: 10px;">Deep Learning Inpainted</p>
+                    <p style="color: var(--bs-primary);font-weight: bold;font-size: 20px;margin-top: 16px;margin-bottom: 10px;">Deep Learning (Telea OpenCV)</p>
                     <button id="display_btn_4" type="button" style="padding: 0px;border-style: none;">
                         <img id="display_img_4" class="img-fluid" >
+                    </button>
+                </div>
+                <div class="col" style="text-align: center;">
+                    <p style="color: var(--bs-primary);font-weight: bold;font-size: 20px;margin-top: 16px;margin-bottom: 10px;">Deep Learning (LaMa)</p>
+                    <button id="display_btn_5" type="button" style="padding: 0px;border-style: none;">
+                        <img id="display_img_5" class="img-fluid" >
                     </button>
                 </div>
             </div>
@@ -125,7 +154,7 @@
                     <ul class="list-inline my-2">
                         <li class="list-inline-item me-4">
                             <div class="bs-icon-circle bs-icon-primary bs-icon" style="background: var(--bs-primary);">
-                                <a class="d-xl-flex justify-content-xl-center align-items-xl-center" href="https://github.com/wpcjath" style="width: 100%;height: 100%;" target="_blank">
+                                <a class="d-flex justify-content-center align-items-center" href="https://github.com/wpcjath" style="width: 100%;height: 100%;" target="_blank">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-github" style="height: 12px;width: 12px;">
                                         <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 
                                                  0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 
@@ -228,6 +257,8 @@
         let msk_file = null;
         let mask = null;
         let brunsh_color = "#fd800d";
+        let brunsh_size = 24;
+        let mask_identify_tolerance = 1.8;
         let process_id = null;
         let processing_finished_global = false;
 
@@ -245,10 +276,11 @@
             {
                 $('#' + btn).click(renderSampleImgOnCanvasa)
             });
-            ['display_btn_1', 'display_btn_2', 'display_btn_3', 'display_btn_4'].forEach(btn => 
+            ['display_btn_1', 'display_btn_2', 'display_btn_3', 'display_btn_4', 'display_btn_5'].forEach(btn => 
             {
                 $('#' + btn).click(display_large_image_modal)
             });
+            $("#brush_size_range").change(() => {set_brush_size($("#brush_size_range").val())});
 
             draw_back_btn.click(display_upload_ctn);
             draw_next_btn.click(uploadImageMask);
@@ -261,6 +293,8 @@
             draw_mask_cvs.addEventListener("mouseup", endStroke, false);
             draw_mask_cvs.addEventListener("mouseout", endStroke, false);
             draw_mask_cvs.addEventListener("mouseenter", mouseEnter, false);
+
+            set_brush_size(brunsh_size);
         });
         
         //// Display control functions ////
@@ -279,12 +313,13 @@
             img_draw_ctn.removeClass("visually-hidden");
         }
 
-        function display_display_ctn(inpainted_img_1, inpainted_img_2) 
+        function display_display_ctn(inpainted_img_1, inpainted_img_2, inpainted_img_3) 
         {
             $("#display_img_1").attr("src", URL.createObjectURL(img_file));
             $("#display_img_2").attr("src", URL.createObjectURL(mask_file)); 
             $("#display_img_3").attr("src", 'data:image/png;base64,' + inpainted_img_1);
-            $("#display_img_4").attr("src", 'data:image/png;base64,' + inpainted_img_2);           
+            $("#display_img_4").attr("src", 'data:image/png;base64,' + inpainted_img_2);
+            $("#display_img_5").attr("src", 'data:image/png;base64,' + inpainted_img_3);        
 
             img_upload_ctn.addClass("visually-hidden");
             img_draw_ctn.addClass("visually-hidden");
@@ -332,6 +367,12 @@
         function hide_progress_bar() 
         {
             $("#progress_bar").addClass("visually-hidden");
+        }
+
+        function set_brush_size(size) 
+        {
+            brunsh_size = strokeWidth = size;
+            $("#brush_size_displayer").text(size + "px");
         }
 
         //// Functionailites ////
@@ -446,23 +487,25 @@
             });
             
             processing_finished_global = false;
-            randomProgress(0, 1000, 25, 100, 250, 2000, (value) => {
+            randomProgress(0, 1000, 56, 108, 400, 500, (value) => {
                     display_progress_bar(value / 10);
             });
-            let interval = setInterval(() => {
-                if (error_occured || queryResult()) {
+
+            let interval = setInterval(async () => {
+                if (error_occured || !await queryResult()) {
                     processing_finished_global = true;
                     clearInterval(interval);
                     hide_loading_modal();
                     hide_progress_bar();
                 }
                 // console.log("querying");
-            }, 1000);
+            }, 5000);
         }
 
         async function queryResult() {
             if (!process_id) return true;
             onProcessing = true;
+            error_occured = false;
 
             let formData = new FormData();
             formData.append("id", process_id);
@@ -478,29 +521,30 @@
                     if (res.result == "success") 
                     {
                         display_progress_bar(100);
-                        console.log(res.data);
-                        display_display_ctn(res.data.img1, res.data.img2);
-                        hide_loading_modal();
-                        hide_progress_bar();
+                        // console.log(res.data);
+                        display_display_ctn(res.data.img1, res.data.img2, res.data.img3);
                         onProcessing = false;
+                        return;
                     } 
                     if (res.result == "error") 
                     {
                         display_message_modal("Error", res.data, display_upload_ctn);
-                        onProcessing = false;
+                        error_occured = true;
+                        return;
                     } 
+                    onProcessing = true;
                 },
                 error: () => {
                     display_message_modal("Error", "Failed to query the result.", display_upload_ctn);
-                    onProcessing = false;
+                    error_occured = true;
                 }
             });
 
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 let interval = setInterval(() => {
-                if (!onProcessing) {
+                if (!onProcessing || error_occured) {
                     clearInterval(interval);
-                    resolve(true);
+                    resolve(false);
                 }
                 }, 100);
             });
@@ -510,19 +554,20 @@
             let blend_pixels = draw_mask_ctx.getImageData(0, 0, draw_mask_cvs.width, draw_mask_cvs.height).data;
             let mask_pixels = new Uint8ClampedArray(blend_pixels.length);
 
-            for (let i = 0; i < blend_pixels.length; i += 4) {
+            for (let i = 0; i < blend_pixels.length; i += 4) 
+            {
                 // dec format of the paint color #fd800d, a "hot-fix" solution
-                if (blend_pixels[i] == 253 && blend_pixels[i + 1] == 128 && blend_pixels[i + 2] == 13) 
-                {
-                    mask_pixels[i] = 0;
-                    mask_pixels[i + 1] = 0;
-                    mask_pixels[i + 2] = 0;
-                } 
-                else 
+                if (euclidean_distance(blend_pixels[i], blend_pixels[i + 1], blend_pixels[i + 2], 253, 128, 13) < mask_identify_tolerance) 
                 {
                     mask_pixels[i] = 255;
                     mask_pixels[i + 1] = 255;
                     mask_pixels[i + 2] = 255;
+                } 
+                else 
+                {
+                    mask_pixels[i] = 0;
+                    mask_pixels[i + 1] = 0;
+                    mask_pixels[i + 2] = 0;
                 }
                 mask_pixels[i + 3] = 255;
             }
@@ -543,6 +588,10 @@
             temp_ctx.drawImage(img, 0, 0);
             let img_blob = await temp_cvs.convertToBlob();
             img_file = new File([img_blob], "image.png", {type: 'image/png'});
+        }
+
+        function euclidean_distance(x1, x2, x3, y1, y2, y3) {
+            return Math.sqrt(Math.pow(x1 - y1, 2) + Math.pow(x2 - y2, 2) + Math.pow(x3 - y3, 2));
         }
 
         
@@ -582,7 +631,7 @@
 
         // Brush colour and size
         const colour = brunsh_color;
-        const strokeWidth = 25;
+        let strokeWidth = brunsh_size;
 
         // Drawing state
         let latestPoint;

@@ -1,7 +1,7 @@
 # Course Project of IEMS5726 Data Science in Practice (Fall 2023)
-Here is the course project files of WANG XIANGZHI. The topic is Image Inpainting under Deep Image Processing. This specific project, provides full pipeline of both non-deep and deep learning methods on image inpainting tasks.
+Here is the course project files of WANG XIANGZHI. The topic is Image Inpainting under Deep Image Processing. This specific project provides full pipeline of both non-deep and deep learning methods on image inpainting tasks.
 
-All references are well-citated, and all codes are well documented and commented. This project is under [MIT License](#license), and doesn't disclosure any sensitive and copyright-protected information about the course and lecturer.
+All references are well-citated, and all codes are well documented and commented. This project is under [MIT License](#license), and doesn't disclose any sensitive and copyright-protected information about the course and lecturer.
 
 **Date of Creation:** Dec-16-2023   
 **Github URL:** https://github.com/WPCJATH/Image_Inpainting   
@@ -16,6 +16,25 @@ All references are well-citated, and all codes are well documented and commented
 ## Table of Content
 
 ## Files Hierarchy
+../  
+├── Image_Inpanitng/    
+│    └── `app.py`      
+│    └── `data_analysis1.py`   
+│    └── `data_analysis2.py`   
+│    └── `data_preprocessing.py`       
+│    └── `data_visualization.py`     
+│    └── `environment.yml`          
+├── model/    
+├── www/   
+│    └── assets  
+│    └── `index.html`        
+├── DeepMethodBaseline/    
+│    └── ...  
+├── NonDeepMethodBaseline/   
+│    └── ...   
+└── README.md   
+└── start_service.bat  
+└── ...   
 
 ## File Descriptions
 
@@ -58,5 +77,4 @@ All references are well-citated, and all codes are well documented and commented
 >OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 >SOFTWARE.
 >
-
 

@@ -82,6 +82,7 @@ def result():
     
     img1_path = os.path.join(_img_buffer_path, id, "inpainted1.png")
     img2_path = os.path.join(_img_buffer_path, id, "inpainted2.png")
+    img3_path = os.path.join(_img_buffer_path, id, "inpainted3.png")
 
     if id in _img_error__list:
         return _json_response_maker("error", "Got an error while processing.", 500)
@@ -98,10 +99,13 @@ def result():
     with open(img2_path, "rb") as f:
         img2 = f.read()
     # os.remove(img2_path)
+    with open(img3_path, "rb") as f:
+        img3 = f.read()
     
     return _json_response_maker("success", {
         "img1": base64.b64encode(img1).decode(),
-        "img2": base64.b64encode(img2).decode()
+        "img2": base64.b64encode(img2).decode(),
+        "img3": base64.b64encode(img3).decode()
     })
     
 
@@ -111,6 +115,7 @@ def _image_processing():
     The image processing thread.
     """
     import cv2, numpy as np
+    from NonDeepMethodBaseline import pyheal
     global _work_stopped
     while not _work_stopped:
         if _process_queue.empty():
@@ -123,17 +128,19 @@ def _image_processing():
             img = cv2.imread(os.path.join(_img_buffer_path, id, "img.png"))
             mask = cv2.imread(os.path.join(_img_buffer_path, id, "mask.png"))
             mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-            mask = cv2.bitwise_not(mask)
+            # mask = cv2.bitwise_not(mask)
             img1_path = os.path.join(_img_buffer_path, id, "inpainted1.png")
             img2_path = os.path.join(_img_buffer_path, id, "inpainted2.png")
+            img3_path = os.path.join(_img_buffer_path, id, "inpainted3.png")
 
-            print(f"Saving img1 to: {img1_path}")
-            print(f"Saving img2 to: {img2_path}")
+            pyheal_img = img.copy() # np.clip(cv2.cvtColor(img, cv2.COLOR_BGR2RGB) * 255, 0, 255).astype(np.uint8)
+            # Requires inplace assignment
+            pyheal.inpaint(pyheal_img, mask.astype(bool, copy=True), 5)
+            cv2.imwrite(img1_path, pyheal_img)
+            cv2.imwrite(img2_path, cv2.inpaint(img, mask, 3, cv2.INPAINT_TELEA))
+            cv2.imwrite(img3_path, cv2.inpaint(img, mask, 3, cv2.INPAINT_NS))
 
-            cv2.imwrite(img1_path, cv2.inpaint(img, mask, 3, cv2.INPAINT_TELEA))
-            cv2.imwrite(img2_path, cv2.inpaint(img, mask, 3, cv2.INPAINT_NS))
-
-            assert os.path.exists(img1_path) and os.path.exists(img2_path)
+            assert os.path.exists(img1_path) and os.path.exists(img2_path) and os.path.exists(img3_path)
         except Exception as e:
             print(e)
             _img_error__list.append(id)
