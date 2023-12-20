@@ -1,6 +1,3 @@
-[submodule "DeepMethodBaseline"]
-	path = DeepMethodBaseline
-	url = https://github.com/nipponjo/deepfillv2-pytorch.git
 [submodule "NonDeepMethodBaseline"]
 	path = NonDeepMethodBaseline
 	url = https://github.com/olvb/pyheal
