@@ -6,8 +6,8 @@ Date: Dec-17-2023
 """
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
-import os, uuid, base64, queue, time, subprocess
-
+import os, uuid, base64, queue, time
+import data_analysis2
 
 _img_buffer_path = "img_buffer"
 _img_buffer_list = []
@@ -148,10 +148,7 @@ def _image_processing():
 
 
 def _inference_deep_method(image_path, mask_path, out_path):
-    cmds = ["call activate inpainting && python", "DeepMethodBaseline/test.py", 
-            "--image", image_path, "--mask", mask_path, "--out", out_path,
-            "--checkpoint model/retrained/states_25000.pth"]
-    return subprocess.call(" ".join(cmds), shell=True, stdout=subprocess.DEVNULL) == 0
+    data_analysis2.test(None, image_path, mask_path, out_path)
 
 
 

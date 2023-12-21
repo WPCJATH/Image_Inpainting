@@ -36,6 +36,19 @@ def load_image_from_path(image_path, method="opencv", mode="RGB"):
 
     return None
 
+def save_image(image, image_path, is_gray=False):
+    '''Save the image to file system'''
+    if image.max() <= 1.0:
+        image = (image * 255).astype('uint8')
+    else:
+        image = image.astype('uint8')
+    if is_gray:
+        image = Image.fromarray(image, "L")
+    else:
+        image = Image.fromarray(image)
+    image.save(image_path)
+
+
 def generate_random_mask(img_he, img_wi, margin_he, margin_wi, mask_hi, mask_wi, path=None):
     '''
     Generate a random mask 
@@ -54,14 +67,20 @@ def generate_random_mask(img_he, img_wi, margin_he, margin_wi, mask_hi, mask_wi,
 def perform_random_crop(image):
     '''
     Perform random crop on the image
+    Reference: https://github.com/nipponjo/deepfillv2-pytorch/blob/master/train.py
     '''
     return T.RandomCrop(image.shape[1:])(image)
 
 
 class DeepImageDataset(Dataset):
-    def __init__(self, folder_path):
+    '''
+    The dataset class for loading images on the fly.
+    Reference: https://github.com/nipponjo/deepfillv2-pytorch/blob/master/utils/data.py
+    '''
+    def __init__(self, folder_path, use_tensor=False):
         super().__init__()
         self.images = [os.path.join(folder_path, image_name) for image_name in os.listdir(folder_path)]
+        self.use_tensor = use_tensor
 
     def __len__(self):
         return len(self.images)
@@ -70,6 +89,8 @@ class DeepImageDataset(Dataset):
         image = load_image_from_path(self.images[index], method="pil")
         image = T.ToTensor()(image)
         image = perform_random_crop(image)
+        if not self.use_tensor:
+            image = image.permute(1, 2, 0).contiguous().cpu().numpy()   
         return image
 
 if __name__ == "__main__":
@@ -77,7 +98,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from torch.utils.data import DataLoader
 
-    dataset = DeepImageDataset("data/")
+    dataset = DeepImageDataset("data/", True)
     dataloader = DataLoader(dataset, batch_size=4, shuffle=True)
     for batch in dataloader:
         print(batch.shape)

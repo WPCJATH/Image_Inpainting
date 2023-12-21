@@ -9,12 +9,30 @@ Date: 21-Dec-2023
 # The code here only provide the inference & evaluation methods with will follow the deep method
 
 
-# Infer the image with the non-deep method
+import numpy as np
+from NonDeepMethodBaseline import pyheal
+from skimage.metrics import structural_similarity as ssim
 
+# Infer the image with the non-deep method
+def infer_image_non_deep_method(img, mask):
+    pyheal_img = img.copy()
+    pyheal.inpaint(pyheal_img, mask.astype(bool, copy=True), 5)
+    return pyheal_img
 
 
 # Compute l1 loss
+def compute_l1_loss(predicted, target):
+    return np.mean(np.abs(predicted - target))
 
+# Compute MSE loss
+def compute_MSE_loss(predicted, target):
+    return np.mean(np.square(predicted - target))
 
+# Compute PSNR
+def compute_PSNR(predicted, target):
+    return 10 * np.log10(1 / compute_MSE_loss(predicted, target))
 
-# Compute Associative Embedding loss
+# Compute SSIM
+def compute_SSIM(predicted, target):
+    return ssim(predicted, target, multichannel=True)
+

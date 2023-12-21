@@ -1,3 +1,6 @@
 
 img_buffer/
 data/
+model/test/
+__pycache__/
+tb_logs/places2/model_retrain/
