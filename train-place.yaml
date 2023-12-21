@@ -1,6 +1,6 @@
 # resume training
 # model_restore: '' # Start new training
-#model_restore: 'checkpoints/places2/model_exp0/states.pth'
+# model_restore: 'checkpoints/places2/model_exp0/states.pth'
 model_restore: 'model/pretrained/states_pt_places2.pth'
 
 # dataloading
