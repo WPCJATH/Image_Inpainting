@@ -13,45 +13,62 @@ All references are well-citated, and all codes are well documented and commented
 - STUDENT ID: 1155200446
 - E-MAIL: 1155200446@link.cuhk.edu.hk
 
-## Table of Content
+## Installation
+This project is compeletly runnable on a windows machine with Nvidia GPU and conda environment, other
+platform or environment is not tested.
 
-## Files Hierarchy
-../  
-├── Image_Inpanitng/    
-│    └── `app.py`      
-│    └── `data_analysis1.py`   
-│    └── `data_analysis2.py`   
-│    └── `data_preprocessing.py`       
-│    └── `data_visualization.py`     
-│    └── `environment.yml`          
-├── model/    
-├── www/   
-│    └── assets  
-│    └── `index.html`        
-├── DeepMethodBaseline/    
-│    └── ...  
-├── NonDeepMethodBaseline/   
-│    └── ...   
-└── README.md   
-└── start_service.bat  
-└── ...   
+To install the conda environment with GPU support, run the commands below:
+```batch
+conda env create --file environment.yml
+conda activate inpainting
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+or execute the batch file `env_install_conda.bat`
 
-## File Descriptions
+## Web Demo
+Run the command below:
+```batch
+conda activate inpainting
+python app.py
+```
+Or execute the batch file `start_service.bat`   
 
-## Large File URLs
-### Dataset
+## Train
+The training config is at `train-place.yaml` with commented instructions   
 
-### Trained Models
-
-## Installation & Usage
-
-## Demo
-### Jupyter Notebook
-
-### Web Service
+**Pre-trained model URL:** https://drive.google.com/u/0/uc?id=1L63oBNVgz7xSb_3hGbUdkYW1IuRgMkCa&export=download   
+**Please put the pre-trained model under folder `model/pretrained`**
 
 
-## References
+**Retrained model URL:** https://drive.google.com/drive/folders/1d3PVcqljGTz_Z8Dc1J1aP-KdIsLvrtbR?usp=sharing    
+**Please put the retrained model under folder `model/retrained` and specify the retrain model name in the config file (`states_25000.pth` is the default)**
+
+**Data URL:** The same as the retrained model
+**Please put the unzipped data folder under folder `data/`, so the data can be accessed by path `data/snowfield`**
+
+Run the below command:
+```batch
+conda activate inpainting
+python train_model.py
+```
+
+## Visualization and evaluation
+Run the below command:
+```batch
+conda activate inpainting
+python data_visiualization.py
+```
+
+## Training logging
+Download the training log at the same url as the retrained model, and put the log file under path `tb_logs/places/model_retrain`  
+Run the following command:
+```
+conda activate inpainting
+tensorboard --logdir=tb_logs\places2\model_retrain --host localhost --port 8088
+```
+Or execute the batch file `tensorboard_log.bat`
+
+Then, the log can be viewed under http://localhost:8088   
 
 
 ## License

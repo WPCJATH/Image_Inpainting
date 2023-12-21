@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 os.makedirs("data_visualization", exist_ok=True)
 
 # Data Visualization after preprocessing
-def gen_display_preprocess_imgs(n, data_source_path, data_out_path, random_pick = True):
+def gen_display_preprocess_imgs(n, data_source_path, data_out_path, random_pick = True, display=True):
     dataset = data_preprocessing.DeepImageDataset(data_source_path, return_raw=True)
     img_mask_path = os.path.join(data_out_path, "img_mask")
     if random_pick:
@@ -40,6 +40,8 @@ def gen_display_preprocess_imgs(n, data_source_path, data_out_path, random_pick 
         data_preprocessing.save_image(masks[i], os.path.join(img_mask_path, "mask_" + str(i) + ".png"), is_gray=True)
 
     # Display the images and masks
+    if not display:
+        return
     fig, axs = plt.subplots(n, 3)
     fig.suptitle("Image and Mask after the Pre-processing")
     for i in range(n):
@@ -55,7 +57,7 @@ def gen_display_preprocess_imgs(n, data_source_path, data_out_path, random_pick 
 
 
 # Data Visualization after inpainting
-def gen_display_inpainted_imgs(n, data_path):
+def gen_display_inpainted_imgs(n, data_path, display=True):
     img_mask_path = os.path.join(data_path, "img_mask")
     non_deep_path = os.path.join(data_path, "non_deep_inpainted")
     deep_path = os.path.join(data_path, "deep_inpainted")
@@ -82,8 +84,9 @@ def gen_display_inpainted_imgs(n, data_path):
         )
 
     # Display with image, mask, inpainted1, inpainted2
-    fig, axs = plt.subplots(n, 4)
-    fig.suptitle("Inpainted Images")
+    if display:
+        fig, axs = plt.subplots(n, 4)
+        fig.suptitle("Inpainted Images")
     print("\n\n   Matrixes:")
     for i in range(n):
         # Print the matrixes
@@ -91,6 +94,9 @@ def gen_display_inpainted_imgs(n, data_path):
         print("Non deep Inpainted: l1 {} MSE {} PSNR {} SSIM {}".format(*data_analysis1.evaluation(inpainted1[i], images[i])))
         print("Deep Inpainted: l1 {} MSE {} PSNR {} SSIM {}".format(*data_analysis1.evaluation(inpainted2[i], images[i])))
         print()
+
+        if not display:
+            continue
         axs[i,0].imshow(images[i])
         axs[i,1].imshow(masks[i], cmap='gray')
         axs[i,2].imshow(inpainted1[i])
@@ -100,7 +106,8 @@ def gen_display_inpainted_imgs(n, data_path):
             axs[i,1].set_title("Mask")
             axs[i,2].set_title("Non-deep Inpainted")
             axs[i,3].set_title("Deep Inpainted")
-    plt.show()
+    if display:
+        plt.show()
 
 
 
