@@ -1,4 +1,4 @@
-call activate data_science
+call activate inpainting
 
 python app.py
 

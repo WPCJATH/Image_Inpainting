@@ -6,7 +6,7 @@ Date: Dec-17-2023
 """
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
-import os, uuid, base64, queue, time
+import os, uuid, base64, queue, time, subprocess
 
 
 _img_buffer_path = "img_buffer"
@@ -114,7 +114,7 @@ def _image_processing():
     """
     The image processing thread.
     """
-    import cv2, numpy as np
+    import cv2
     from NonDeepMethodBaseline import pyheal
     global _work_stopped
     while not _work_stopped:
@@ -128,17 +128,16 @@ def _image_processing():
             img = cv2.imread(os.path.join(_img_buffer_path, id, "img.png"))
             mask = cv2.imread(os.path.join(_img_buffer_path, id, "mask.png"))
             mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-            # mask = cv2.bitwise_not(mask)
             img1_path = os.path.join(_img_buffer_path, id, "inpainted1.png")
             img2_path = os.path.join(_img_buffer_path, id, "inpainted2.png")
             img3_path = os.path.join(_img_buffer_path, id, "inpainted3.png")
 
-            pyheal_img = img.copy() # np.clip(cv2.cvtColor(img, cv2.COLOR_BGR2RGB) * 255, 0, 255).astype(np.uint8)
+            pyheal_img = img.copy()
             # Requires inplace assignment
             pyheal.inpaint(pyheal_img, mask.astype(bool, copy=True), 5)
             cv2.imwrite(img1_path, pyheal_img)
             cv2.imwrite(img2_path, cv2.inpaint(img, mask, 3, cv2.INPAINT_TELEA))
-            cv2.imwrite(img3_path, cv2.inpaint(img, mask, 3, cv2.INPAINT_NS))
+            _inference_deep_method(os.path.join(_img_buffer_path, id, "img.png"), os.path.join(_img_buffer_path, id, "mask.png"), img3_path)
 
             assert os.path.exists(img1_path) and os.path.exists(img2_path) and os.path.exists(img3_path)
         except Exception as e:
@@ -146,6 +145,13 @@ def _image_processing():
             _img_error__list.append(id)
         finally:
             _img_buffer_list.remove(id)
+
+
+def _inference_deep_method(image_path, mask_path, out_path):
+    cmds = ["call activate inpainting && python", "DeepMethodBaseline/test.py", 
+            "--image", image_path, "--mask", mask_path, "--out", out_path,
+            "--checkpoint model/retrained/states_25000.pth"]
+    return subprocess.call(" ".join(cmds), shell=True, stdout=subprocess.DEVNULL) == 0
 
 
 
