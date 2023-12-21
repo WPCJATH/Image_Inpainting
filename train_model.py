@@ -6,13 +6,15 @@ Date: 21-Dec-2023
 '''
 
 import data_analysis2
-
-mode = "train" # "train" or "infer_visual"
+import data_visualization
 data_path = "data/snowfield"
 
 if __name__ == "__main__":
-    if mode == "train":
-        data_analysis2.train("train-place.yaml")
-    elif mode == "infer_visual":
-        pass
+    data_analysis2.train("train-place.yaml")
+
+    # Data Visualization after preprocessing and after inpainting
+    data_source = "data/snowfield"
+    data_dest = "data_visualization/"
+    data_visualization.gen_display_preprocess_imgs(5, data_source, data_dest)
+    data_visualization.gen_display_inpainted_imgs(5, data_dest)
     

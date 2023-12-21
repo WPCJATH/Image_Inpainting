@@ -77,21 +77,24 @@ class DeepImageDataset(Dataset):
     The dataset class for loading images on the fly.
     Reference: https://github.com/nipponjo/deepfillv2-pytorch/blob/master/utils/data.py
     '''
-    def __init__(self, folder_path, use_tensor=False):
+    def __init__(self, folder_path, use_tensor=False, return_raw=False):
         super().__init__()
         self.images = [os.path.join(folder_path, image_name) for image_name in os.listdir(folder_path)]
         self.use_tensor = use_tensor
+        self.return_raw = return_raw
 
     def __len__(self):
         return len(self.images)
     
     def __getitem__(self, index):
         image = load_image_from_path(self.images[index], method="pil")
-        image = T.ToTensor()(image)
-        image = perform_random_crop(image)
+        prosed_image = T.ToTensor()(image.copy())
+        prosed_image = perform_random_crop(prosed_image)
         if not self.use_tensor:
-            image = image.permute(1, 2, 0).contiguous().cpu().numpy()   
-        return image
+            prosed_image = prosed_image.permute(1, 2, 0).contiguous().cpu().numpy()
+        if self.return_raw:   
+            return image, prosed_image
+        return prosed_image
 
 if __name__ == "__main__":
     # Test

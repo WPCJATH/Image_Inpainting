@@ -316,8 +316,9 @@ def test(model_path, image_path, mask_path, out_path):
     # save inpainted image
     img_out = ((image_inpainted[0].permute(1, 2, 0) + 1)*127.5)
     img_out = img_out.to(device='cpu', dtype=torch.uint8)
-    img_out = Image.fromarray(img_out.numpy())
-    img_out.save(out_path)
+    img_out = img_out.numpy()
+    img_out_ = Image.fromarray(img_out)
+    img_out_.save(out_path)
 
     print(f"Saved output file at: {out_path}")
     return img_out
@@ -337,5 +338,13 @@ def compute_PSNR(predicted, target):
 
 # Compute SSIM
 def compute_SSIM(predicted, target):
-    return ssim(predicted.cpu().numpy(), target.cpu().numpy(), multichannel=True)
+    return ssim(predicted.permute(1, 2, 0).cpu().numpy(), target.permute(1, 2, 0).cpu().numpy(), multichannel=True, channel_axis=2)
 
+# Evaluate images
+def evaluation(predicted, target):
+    l1_loss = compute_l1_loss(predicted, target)
+    MSE_loss = compute_MSE_loss(predicted, target)
+    PSNR = compute_PSNR(predicted, target)
+    SSIM = compute_SSIM(predicted, target)
+
+    return l1_loss, MSE_loss, PSNR, SSIM

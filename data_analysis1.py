@@ -34,5 +34,16 @@ def compute_PSNR(predicted, target):
 
 # Compute SSIM
 def compute_SSIM(predicted, target):
-    return ssim(predicted, target, multichannel=True)
+    return ssim(predicted, target, multichannel=True, channel_axis=2)
+
+
+# Evaluate images
+def evaluation(predicted, target):
+    l1_loss = compute_l1_loss(predicted, target)
+    MSE_loss = compute_MSE_loss(predicted, target)
+    PSNR = compute_PSNR(predicted, target)
+    SSIM = compute_SSIM(predicted, target)
+
+    return l1_loss, MSE_loss, PSNR, SSIM
+
 
